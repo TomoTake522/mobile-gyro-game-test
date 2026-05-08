@@ -1,12 +1,7 @@
-#:schema node_modules/wrangler/config-schema.json
 name = "mobile-gyro-game-test"
 compatibility_date = "2026-05-08"
 compatibility_flags = [ "nodejs_compat" ]
-
-# Astro のビルド成果物（dist）の場所を Pages に教える
 pages_build_output_dir = "./dist"
 
 [vars]
 NODE_VERSION = "22.16.0"
-# 依存関係の衝突を無視してインストールを強制する設定
-NPM_FLAGS = "--legacy-peer-deps"
