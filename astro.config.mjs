@@ -19,15 +19,20 @@ export default defineConfig({
   vite: {
     plugins: [tailwindcss()],
     resolve: {
-      // ここが重要！ fs や child_process を呼ぼうとしたら「空っぽ」に置き換える
+      // 古い require('fs') などを node:fs 形式に強制変換して解決させる
       alias: {
-        'fs': 'node:fs',
-        'child_process': 'node:child_process',
-        'detect-libc': 'node:process', // エラー源の detect-libc を実質無効化
+        fs: 'node:fs',
+        child_process: 'node:child_process',
+        util: 'node:util',
+        path: 'node:path',
+        os: 'node:os',
+        stream: 'node:stream',
+        crypto: 'node:crypto',
       }
     },
     build: {
       rollupOptions: {
+        // ビルド対象から完全に外す
         external: [
           'node:fs',
           'node:child_process',
@@ -41,9 +46,8 @@ export default defineConfig({
       }
     },
     ssr: {
-      // node: プリフィックスなしの古い呼び出しを外部扱いにして無視させる
+      // サーバーサイドでのビルド時もこれらを外部モジュールとして扱う
       external: ['fs', 'child_process', 'path', 'os', 'crypto', 'stream', 'util'],
-      noExternal: ['tailwindcss'],
     }
   }
 });
