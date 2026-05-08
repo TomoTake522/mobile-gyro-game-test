@@ -1,0 +1,77 @@
+---
+import '../styles/global.css';
+---
+
+<html lang="ja">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Gyro Test</title>
+  </head>
+  <body class="flex flex-col items-center justify-center min-h-screen">
+    
+    <div id="status" class="mb-4 p-2 bg-red-500 rounded hidden">
+      ジャイロセンサーを許可してください
+    </div>
+
+    <button id="start-btn" class="px-6 py-3 bg-blue-600 rounded-full font-bold hover:bg-blue-500 transition-colors">
+      センサーを開始する
+    </button>
+
+    <!-- PCで見た時に傾くオブジェクト -->
+    <div id="box" class="mt-10 w-32 h-32 bg-cyan-400 rounded-xl shadow-[0_0_20px_rgba(34,211,238,0.5)] flex items-center justify-center text-slate-900 font-bold">
+      傾き!
+    </div>
+
+    <div class="mt-8 text-sm font-mono">
+      <p>beta: <span id="val-beta">0</span></p>
+      <p>gamma: <span id="val-gamma">0</span></p>
+    </div>
+
+    <script>
+      const btn = document.getElementById('start-btn');
+      const box = document.getElementById('box');
+      const valBeta = document.getElementById('val-beta');
+      const valGamma = document.getElementById('val-gamma');
+
+      async function requestPermission() {
+        // iOS 13+ のための権限リクエスト
+        if (typeof (DeviceOrientationEvent as any).requestPermission === 'function') {
+          const permission = await (DeviceOrientationEvent as any).requestPermission();
+          if (permission === 'granted') {
+            startGyro();
+          }
+        } else {
+          // AndroidやPCなど
+          startGyro();
+        }
+      }
+
+      function startGyro() {
+        btn.style.display = 'none';
+        
+        window.addEventListener('deviceorientation', (event) => {
+          const beta = event.beta;   // 前後の傾き (-180 to 180)
+          const gamma = event.gamma; // 左右の傾き (-90 to 90)
+
+          // 画面表示用
+          valBeta.innerText = beta.toFixed(2);
+          valGamma.innerText = gamma.toFixed(2);
+
+          // オブジェクトに反映 (PC表示時のシミュレーション)
+          if (box) {
+            box.style.transform = `rotateX(${beta}deg) rotateY(${gamma}deg)`;
+          }
+
+          /** 
+           * 【ヒント】PCへ送信する場合
+           * ここで WebSocket.send() や API 経由で数値を送れば、
+           * 別ブラウザで開いているPC側のオブジェクトを動かせます。
+           */
+        });
+      }
+
+      btn.addEventListener('click', requestPermission);
+    </script>
+  </body>
+</html>

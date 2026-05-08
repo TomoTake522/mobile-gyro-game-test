@@ -1,0 +1,6 @@
+@import "tailwindcss";
+
+/* 動作確認用の簡単なスタイル（任意） */
+body {
+  @apply bg-slate-900 text-white overflow-hidden;
+}
