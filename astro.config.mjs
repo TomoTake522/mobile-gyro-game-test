@@ -5,7 +5,7 @@ import cloudflare from '@astrojs/cloudflare';
 export default defineConfig({
   output: 'server',
   adapter: cloudflare({
-    // wrangler.toml を使う場合はここを調整
+    // 設定は wrangler.toml に任せる
     platformProxy: { enabled: true },
   }),
 
@@ -19,7 +19,7 @@ export default defineConfig({
     plugins: [tailwindcss()],
     resolve: {
       alias: {
-        // 全ての Node.js モジュール呼び出しを node: 付きへ強制リダイレクト
+        // Node.js 標準モジュールへの参照を node: プレフィックス付きに変換
         fs: 'node:fs',
         child_process: 'node:child_process',
         path: 'node:path',
@@ -29,9 +29,24 @@ export default defineConfig({
         crypto: 'node:crypto',
       }
     },
+    build: {
+      rollupOptions: {
+        // 依存関係のスキャンから完全に除外
+        external: [
+          'node:fs',
+          'node:child_process',
+          'node:path',
+          'node:os',
+          'node:util',
+          'node:stream',
+          'node:crypto',
+          'detect-libc'
+        ],
+      }
+    },
     ssr: {
-      // 問題のライブラリを絶対にバンドルに含めない
-      external: ['detect-libc', 'sharp', 'fs', 'child_process'],
+      // サーバーサイド実行時もこれらの読み込みをスキップ
+      external: ['detect-libc', 'fs', 'child_process', 'path', 'os', 'util', 'stream', 'crypto'],
     }
   }
 });
