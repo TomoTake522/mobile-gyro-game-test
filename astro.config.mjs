@@ -1,31 +1,40 @@
 import { defineConfig } from 'astro/config';
+import tailwindcss from '@tailwindcss/vite'; // v4の場合はこちら
 import cloudflare from '@astrojs/cloudflare';
-import tailwindcss from '@tailwindcss/vite';
 
 export default defineConfig({
-  // SSRモードを有効化
+  // 今回は 'server' モードが必要なはずなので
   output: 'server',
   
   adapter: cloudflare({
-    platformProxy: {
-      enabled: true,
-    },
-    // これがNode.jsモジュールのエラーを防ぐ鍵です
-    nodejsCompat: true,
+    platformProxy: { enabled: true },
+    // これが「Node.jsのフリをする」魔法のスイッチです
+    nodejsCompat: true, 
   }),
 
-  // integrations は adapter の外に置きます
-  integrations: [],
+  // 画像処理が紛れ込まないように封印
+  image: {
+    service: {
+      entrypoint: 'astro/assets/services/noop'
+    }
+  },
+
+  integrations: [], // Tailwind v4がviteプラグインなら空でOK
 
   vite: {
     plugins: [tailwindcss()],
     ssr: {
-      // Cloudflare SSRでのCSS解決エラーを防ぐための設定
-      noExternal: ['tailwindcss'],
-    },
-    build: {
-      // CSSのパス解決を安定させるための設定
-      cssCodeSplit: true,
+      // 外部Node.jsモジュールを徹底的に無視させる設定
+      external: [
+        'node:fs', 
+        'node:child_process', 
+        'node:util', 
+        'node:stream', 
+        'node:path', 
+        'node:os', 
+        'node:crypto',
+        'sharp' // これを明示的に外す
+      ],
     }
   }
 });
