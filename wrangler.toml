@@ -1,18 +1,3 @@
 name = "mobile-gyro-game-test"
-pages_build_output_dir = "dist"
-
 compatibility_date = "2026-05-08"
 compatibility_flags = [ "nodejs_compat" ]
-
-[site]
-bucket = "./dist"
-
-[build]
-command = "npm run build"
-
-[vars]
-NODE_VERSION = "22.16.0"
-
-# ここが重要！問題のライブラリを「ビルド対象外」として明示的にマークする
-[functions]
-node_compat = true
