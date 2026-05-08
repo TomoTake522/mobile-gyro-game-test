@@ -4,10 +4,9 @@ import cloudflare from '@astrojs/cloudflare';
 
 export default defineConfig({
   output: 'server',
-  
   adapter: cloudflare({
+    // wrangler.toml を使う場合はここを調整
     platformProxy: { enabled: true },
-    nodejsCompat: true, 
   }),
 
   image: {
@@ -19,35 +18,20 @@ export default defineConfig({
   vite: {
     plugins: [tailwindcss()],
     resolve: {
-      // 古い require('fs') などを node:fs 形式に強制変換して解決させる
       alias: {
+        // 全ての Node.js モジュール呼び出しを node: 付きへ強制リダイレクト
         fs: 'node:fs',
         child_process: 'node:child_process',
-        util: 'node:util',
         path: 'node:path',
         os: 'node:os',
+        util: 'node:util',
         stream: 'node:stream',
         crypto: 'node:crypto',
       }
     },
-    build: {
-      rollupOptions: {
-        // ビルド対象から完全に外す
-        external: [
-          'node:fs',
-          'node:child_process',
-          'node:util',
-          'node:path',
-          'node:os',
-          'node:stream',
-          'node:crypto',
-          'sharp'
-        ],
-      }
-    },
     ssr: {
-      // サーバーサイドでのビルド時もこれらを外部モジュールとして扱う
-      external: ['fs', 'child_process', 'path', 'os', 'crypto', 'stream', 'util'],
+      // 問題のライブラリを絶対にバンドルに含めない
+      external: ['detect-libc', 'sharp', 'fs', 'child_process'],
     }
   }
 });
