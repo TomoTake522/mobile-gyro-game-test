@@ -5,9 +5,16 @@ import tailwindcss from '@tailwindcss/vite';
 export default defineConfig({
   // SSRモードを有効化
   output: 'server',
-  adapter: cloudflare(),
+  
+  adapter: cloudflare({
+    platformProxy: {
+      enabled: true,
+    },
+    // これがNode.jsモジュールのエラーを防ぐ鍵です
+    nodejsCompat: true,
+  }),
 
-  // ルール通り明示的に空配列を指定
+  // integrations は adapter の外に置きます
   integrations: [],
 
   vite: {
@@ -20,5 +27,5 @@ export default defineConfig({
       // CSSのパス解決を安定させるための設定
       cssCodeSplit: true,
     }
-  },
+  }
 });
